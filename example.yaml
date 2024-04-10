@@ -1,0 +1,9 @@
+- name: "Simple Test"
+- source:
+  - type: "csv"
+  - location: "./source.csv"
+- target:
+  - type: "csv"
+  - location: "./target.csv"
+- comparison_rules:
+  - row_count: "equal"
