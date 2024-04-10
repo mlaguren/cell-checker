@@ -7,3 +7,4 @@
   - location: "./target.csv"
 - comparison_rules:
   - row_count: "equal"
+  - exact_match: "exact"

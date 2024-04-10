@@ -1,3 +1,4 @@
-phone, price
-iphone 12, 100
-iphone 13, 200
+id, phone, price
+1, iphone 12, 100
+2, iphone 13, 200
+3, iphone 14, 300
