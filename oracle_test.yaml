@@ -1,0 +1,11 @@
+- name: "Simple Test"
+- source:
+  - type: "oracle"
+  - location: "connection_string"
+  - query: ""
+- target:
+  - type: "oracle"
+  - location: "connection_string"
+  - query: ""
+- comparison_rules:
+  - row_count: "equal"

@@ -8,36 +8,30 @@ with open("example.yaml") as stream:
     except yaml.YAMLError as exc:
         print(exc)
 
+
 def data_source(source_type):
     if source_type[0]['type'] == 'csv':
-        source = ["csv", source_type[1]['location']]
-        source.append(source_type[1]['location'])
-        return source
+        data_type = ["csv", source_type[1]['location'], source_type[1]['location']]
+        return data_type
+    # add elif for == 'oracle'. data_type should return [ 'oracle', connecttion_string ]
     else:
         return "Unknown"
 
 
-def row_count(source, target):
-    if source.shape[0] == target.shape[0]:
+def row_count(source_data, target_data):
+    if source_data.shape[0] == target_data.shape[0]:
         return "equal"
-    elif source.shape[0] > target.shape[0]:
+    elif source_data.shape[0] > target_data.shape[0]:
         return "source"
     else:
         return "target"
 
 
-def exact_match(source, target):
-    if source.equals(target):
+def exact_match(source_data, target_data):
+    if source_data.equals(target_data):
         return True
     else:
         return False
-
-
-def highlight_diff(data, color='yellow'):
-    attr = 'background-color: {}'.format(color)
-    other = data.xs('First', axis='columns', level=-1)
-    return pd.DataFrame(np.where(data.ne(other, level=0), attr, ''),
-                        index=data.index, columns=data.columns)
 
 
 source = data_source(test_case[1]['source'])
@@ -45,6 +39,7 @@ target = data_source(test_case[2]['target'])
 
 if source[0] == 'csv':
     df_source = pd.read_csv(source[1])
+    # create a elif: condition for oracle. See data_source function
 else:
     print("Unknown")
 
@@ -54,6 +49,8 @@ else:
     print("Unknown")
 
 policies = (test_case[3]['comparison_rules'])
+
+test_results = []
 
 for policy in policies:
     rule = list(policy.keys())[0]
@@ -68,12 +65,16 @@ for policy in policies:
         if exact_match(df_source, df_target):
             print("pass")
         else:
-            # print(pd.concat([df_source, df_target]).drop_duplicates(keep=False))
-            df_all = pd.concat([df_source.set_index('id'), df_target.set_index('id')], axis='columns', keys=['Source', 'Target'])
+            df_all = pd.concat([df_source.set_index('id'), df_target.set_index('id')], axis='columns',
+                               keys=['Source', 'Target'])
             df_final = df_all.swaplevel(axis='columns')[df_source.columns[1:]]
-            print(df_final)
-            # output = df_final.style.apply(highlight_diff, axis=None)
-            # f = open("styled_dataframe.html", "w")
-            # f.write(output.to_html())
-            # f.close()
+
+            output = df_final.style.format(precision=3, thousands=".", decimal=",").format_index(str.upper, axis=1).relabel_index(df_final.index.values.tolist(), axis=0).set_table_styles(
+                [
+                    {"selector": "td, th", "props": [("border", "1px solid grey !important")]},
+                ]
+            )
+            f = open(f"{test_case[0]['name']}.html", "w")
+            f.write(output.to_html())
+            f.close()
 
