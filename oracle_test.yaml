@@ -1,11 +1,16 @@
 - name: "Simple Test"
 - source:
   - type: "oracle"
-  - location: "connection_string"
-  - query: ""
+  - connection_string:
+      - user: "apps",
+      - password: "apps",
+      - host: "norlecodb01.ecoatm.com",
+      - port: 1527,
+      - sid: "DSRII"
+  - query: "select * from xxgz.xxeco_lk2_ship_confirms"
 - target:
   - type: "oracle"
   - location: "connection_string"
-  - query: ""
+  - query: "select * from xxgz.xxeco_lk2_ship_confirms"
 - comparison_rules:
   - row_count: "equal"
