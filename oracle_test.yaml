@@ -2,15 +2,20 @@
 - source:
   - type: "oracle"
   - connection_string:
-      - user: "apps",
-      - password: "apps",
-      - host: "norlecodb01.ecoatm.com",
-      - port: 1527,
-      - sid: "DSRII"
-  - query: "select * from xxgz.xxeco_lk2_ship_confirms"
+    - user: "apps"
+    - password: "apps"
+    - host: "norlecodb01.ecoatm.com"
+    - port: 1527
+    - sid: "DSRII"
+  - query: "select * from XXGZ.XXECO_LK2_PRESTAGE where transaction_id = 'f1889e2b-e716-403d-aa3f-623e7da10c4d'"
 - target:
   - type: "oracle"
-  - location: "connection_string"
-  - query: "select * from xxgz.xxeco_lk2_ship_confirms"
+  - connection_string:
+    - user: "apps"
+    - password: "apps"
+    - host: "norlecodb01.ecoatm.com"
+    - port: 1527
+    - sid: "DSRII"
+  - query: "select * from XXGZ.XXECO_LK2_PRESTAGE where transaction_id = 'f1889e2b-e716-403d-aa3f-623e7da10c4d'"
 - comparison_rules:
   - row_count: "equal"

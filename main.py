@@ -4,8 +4,6 @@ import yaml
 import oracledb
 oracledb.init_oracle_client(lib_dir=r"C:\instantclient_21_13")
 
-
-
 with open("oracle_test.yaml") as stream:
     try:
         test_case = yaml.safe_load(stream)
@@ -14,18 +12,20 @@ with open("oracle_test.yaml") as stream:
 
 
 def data_source(source_type):
+    #print(source_type)
     if source_type[0]['type'] == 'csv':
         data_type = ["csv", source_type[1]['location'], source_type[1]['location']]
         return data_type
     elif source_type[0]['type'] == 'oracle':
-        connection_string = oracledb.connect(
-            user = source_type[0]['connection_string']['user'],
-            password = source_type[0]['connection_string']['password'],
-            host = source_type[0]['connection_string']['host'],
-            port = source_type[0]['connection_string']['port'],
-            sid = source_type[0]['connection_string']['sid']
+        #print(source_type[1]['connection_string'][0]['user'])
+        connection = oracledb.connect(
+            user = source_type[1]['connection_string'][0]['user'],
+            password = source_type[1]['connection_string'][1]['password'],
+            host = source_type[1]['connection_string'][2]['host'],
+            port = source_type[1]['connection_string'][3]['port'],
+            sid = source_type[1]['connection_string'][4]['sid']
         )
-        data_type = ["oracle", connection_string, source["query"]]
+        data_type = ["oracle", connection, source_type[2]['query']]
         return data_type
     # add elif for == 'oracle'. data_type should return [ 'oracle', connecttion_string ]
     else:
@@ -54,6 +54,7 @@ target = data_source(test_case[2]['target'])
 if source[0] == 'csv':
     df_source = pd.read_csv(source[1])
 elif source[0] == 'oracle':
+    query = source[2]
     df_source = pd.read_sql(source[2], source[1])
     # create a elif: condition for oracle. See data_source function
 else:
@@ -63,6 +64,7 @@ if target[0] == 'csv':
     df_target = pd.read_csv(target[1])
 elif target[0] == 'oracle':
     df_target = pd.read_sql(target[2], target[1])
+    print(df_target)
 else:
     print("Unknown")
 
