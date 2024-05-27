@@ -1,0 +1,22 @@
+- name: "Simple Test"
+- source:
+  - type: "oracle"
+  - connection_string:
+    - user: "apps_readonly"
+    - password: "apps_readonly"
+    - host: "norlecodb01.ecoatm.com"
+    - port: 1525
+    - sid: "TSRII"
+  - query: "select * from XXGZ.XXECO_LK2_ORDER_CANCELS where week_name = 'WK5-2021'"
+- target:
+  - type: "snowflake"
+  - connection_string:
+    - account: "ecoatm"
+    - user: "anthonyvu"
+    - password: "PSRMCBR!D3it"
+    - warehouse: "DW_PROD_WH"
+    - database: "PROD_RAW"
+    - schema: "PUBLIC"
+  - query: "select * from ORACLE_QA_TSRII_XXGZ.XXECO_LK2_ORDER_CANCELS where week_name = 'WK5-2021'"
+- comparison_rules:
+  - row_count: "equal"

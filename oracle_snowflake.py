@@ -2,9 +2,19 @@ import numpy as np
 import pandas as pd
 import yaml
 import oracledb
+import snowflake.connector
+import logging
+
+#logging configuration
+logging.basicConfig(filename='oracle_snowflake.log',
+                    level=logging.DEBUG,
+                    format='%(asctime)s - %(message)s',
+                    datefmt='%d-%b-%y %H:%M:%S')
+#oracle driver thin -> thickmode
 oracledb.init_oracle_client(lib_dir=r"C:\instantclient_21_13")
 
-with open("oracle_test.yaml") as stream:
+#replace yaml file here with appropriate test case
+with open("oracle_snowflake.yaml") as stream:
     try:
         test_case = yaml.safe_load(stream)
     except yaml.YAMLError as exc:
@@ -12,12 +22,10 @@ with open("oracle_test.yaml") as stream:
 
 
 def data_source(source_type):
-    #print(source_type)
     if source_type[0]['type'] == 'csv':
         data_type = ["csv", source_type[1]['location'], source_type[1]['location']]
         return data_type
     elif source_type[0]['type'] == 'oracle':
-        #print(source_type[1]['connection_string'][0]['user'])
         connection = oracledb.connect(
             user = source_type[1]['connection_string'][0]['user'],
             password = source_type[1]['connection_string'][1]['password'],
@@ -26,12 +34,22 @@ def data_source(source_type):
             sid = source_type[1]['connection_string'][4]['sid']
         )
         data_type = ["oracle", connection, source_type[2]['query']]
-        print(source_type[2])
+        logging.info(data_type)
         return data_type
-    # add elif for == 'oracle'. data_type should return [ 'oracle', connecttion_string ]
+    elif source_type[0]['type'] == 'snowflake':
+        conn = snowflake.connector.connect(
+            user = 'anthonyvu',
+            password = 'PSRMCBR!D3it',
+            account = 'ecoatm',
+            warehouse = 'DW_PROD_WH',
+            database = 'PROD_RAW',
+            schema = 'PUBLIC'
+        )
+        data_type = ["snowflake", conn, source_type[2]['query']]
+        logging.info(data_type)
+        return data_type
     else:
         return "Unknown"
-
 
 
 def row_count(source_data, target_data):
@@ -58,15 +76,15 @@ if source[0] == 'csv':
 elif source[0] == 'oracle':
     query = source[2]
     df_source = pd.read_sql(source[2], source[1])
-    # create a elif: condition for oracle. See data_source function
+    logging.info(df_source)
 else:
     print("Unknown")
 
 if target[0] == 'csv':
     df_target = pd.read_csv(target[1])
-elif target[0] == 'oracle':
+elif target[0] == 'snowflake':
     df_target = pd.read_sql(target[2], target[1])
-    print(df_target)
+    logging.info(df_target)
 else:
     print("Unknown")
 
